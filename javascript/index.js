@@ -167,30 +167,43 @@ async function makeBroccoli() {
 makeBroccoli();
 
 // Bonus 2 - Promise all
-async function getBrusselsSproutsInstructions() {
-  try {
-    // Call obtainInstruction for all steps concurrently using Promise.all
-    const [step0, step1, step2, step3, step4] = await Promise.all([
-      obtainInstruction("brusselsSprouts", 0),
-      obtainInstruction("brusselsSprouts", 1),
-      obtainInstruction("brusselsSprouts", 2),
-      obtainInstruction("brusselsSprouts", 3),
-      obtainInstruction("brusselsSprouts", 4),
-    ]);
+function displayBrusselsSproutsInstructions() {
+  // Creating an array of promises for each instruction step
+  const promises = [
+    obtainInstruction("brusselsSprouts", 0),
+    obtainInstruction("brusselsSprouts", 1),
+    obtainInstruction("brusselsSprouts", 2),
+    obtainInstruction("brusselsSprouts", 3),
+    obtainInstruction("brusselsSprouts", 4),
+    obtainInstruction("brusselsSprouts", 5),
+    obtainInstruction("brusselsSprouts", 6),
+    obtainInstruction("brusselsSprouts", 7),
+  ];
 
-    const brusselsSproutsList = document.querySelector("#brusselsSprouts");
-
-    brusselsSproutsList.innerHTML += `<li>${step0}</li>`;
-    brusselsSproutsList.innerHTML += `<li>${step1}</li>`;
-    brusselsSproutsList.innerHTML += `<li>${step2}</li>`;
-    brusselsSproutsList.innerHTML += `<li>${step3}</li>`;
-
-    brusselsSproutsList.innerHTML += `<li>${step4}</li>`;
-    document.querySelector("#brusselsSproutsImg").removeAttribute("hidden");
-    brusselsSproutsList.innerHTML += `<li>Brussels sprouts are ready!</li>`;
-  } catch (error) {
-    console.error(error);
-  }
+  Promise.allSettled(promises)
+    .then((results) => {
+      results.forEach((result, index) => {
+        if (result.status === "fulfilled") {
+          document.querySelector(
+            "#brusselsSprouts"
+          ).innerHTML += `<li>${result.value}</li>`;
+        } else {
+          console.error(`Step ${index} failed with`, result.reason);
+          // Optionally handle the rejected promise, like showing an error message
+          // document.querySelector("#brusselsSprouts").innerHTML += `<li>Step ${index} could not be loaded</li>`;
+        }
+      });
+      // After all steps, add the final statement
+      document.querySelector(
+        "#brusselsSprouts"
+      ).innerHTML += `<li>Brussels sprouts are ready!</li>`;
+      // Optionally, reveal the image if there's one associated with this step
+      document.querySelector("#brusselsSproutsImg").removeAttribute("hidden");
+    })
+    .catch((error) => {
+      // This catch block is technically not necessary for Promise.allSettled,
+      // but could be used for additional error handling outside the promise processing
+      console.error("Unexpected error:", error);
+    });
 }
-
-getBrusselsSproutsInstructions();
+displayBrusselsSproutsInstructions();
